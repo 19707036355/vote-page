@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>能源结构占比图表选型投票</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            padding: 40px 20px;
+        }
+        .vote-card {
+            max-width: 750px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 35px 40px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .title {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .desc {
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .option-item {
+            padding: 14px 18px;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+            color: #34495e;
+        }
+        .option-item:hover {
+            border-color: #52c41a;
+            background-color: #f6ffed;
+        }
+        .option-item input {
+            margin-right: 10px;
+            accent-color: #52c41a;
+        }
+        .option-item.selected {
+            border-color: #52c41a;
+            background-color: #f6ffed;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #52c41a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .submit-btn:hover {
+            background-color: #389e0d;
+        }
+        .result-area {
+            display: none;
+            margin-top: 30px;
+        }
+        .result-title {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .result-item {
+            margin-bottom: 16px;
+        }
+        .result-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 15px;
+            color: #34495e;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #52c41a;
+            border-radius: 5px;
+            transition: width 0.8s ease;
+        }
+        .total-tip {
+            text-align: center;
+            color: #95a5a6;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="vote-card">
+        <h2 class="title">能源结构占比图表</h2>
+        <p class="desc">请选出你认为最适合展示“五大电源装机占比”的图表</p>
+        
+        <div class="options" id="voteOptions">
+            <label class="option-item">
+                <input type="radio" name="chart" value="柱形图"> 柱形图
+            </label>
+            <label class="option-item">
+                <input type="radio" name="chart" value="折线图"> 折线图
+            </label>
+            <label class="option-item">
+                <input type="radio" name="chart" value="雷达图"> 雷达图
+            </label>
+            <label class="option-item">
+                <input type="radio" name="chart" value="饼图"> 饼图
+            </label>
+            <label class="option-item">
+                <input type="radio" name="chart" value="云图"> 云图
+            </label>
+            <label class="option-item">
+                <input type="radio" name="chart" value="圈图"> 圈图
+            </label>
+            <label class="option-item">
+                <input type="radio" name="chart" value="堆叠面积图"> 堆叠面积图
+            </label>
+        </div>
+
+        <button class="submit-btn" onclick="submitVote()">提交投票</button>
+
+        <div class="result-area" id="resultArea">
+            <h3 class="result-title">全班投票结果</h3>
+            <div id="resultList"></div>
+            <p class="total-tip">全班共47人参与投票</p>
+        </div>
+    </div>
+
+    <script>
+        // 模拟47人投票数据，符合课堂知识点：饼图、圈图得票最高
+        const voteData = {
+            "柱形图": 3,
+            "折线图": 2,
+            "雷达图": 1,
+            "饼图": 20,
+            "云图": 1,
+            "圈图": 18,
+            "堆叠面积图": 2
+        };
+        const totalVotes = 47;
+
+        // 选中样式
+        const options = document.querySelectorAll('.option-item');
+        options.forEach(item => {
+            item.addEventListener('click', () => {
+                options.forEach(i => i.classList.remove('selected'));
+                item.classList.add('selected');
+            });
+        });
+
+        function submitVote() {
+            const checked = document.querySelector('input[name="chart"]:checked');
+            if (!checked) {
+                alert('请先选择一个选项');
+                return;
+            }
+            
+            document.getElementById('voteOptions').style.display = 'none';
+            document.querySelector('.submit-btn').style.display = 'none';
+            document.getElementById('resultArea').style.display = 'block';
+
+            const resultList = document.getElementById('resultList');
+            // 按得票数从高到低排序
+            const sorted = Object.entries(voteData).sort((a,b) => b[1] - a[1]);
+            
+            sorted.forEach(([name, count]) => {
+                const percent = ((count / totalVotes) * 100).toFixed(1);
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerHTML = `
+                    <div class="result-label">
+                        <span>${name}</span>
+                        <span>${count}票 · ${percent}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                `;
+                resultList.appendChild(item);
+                
+                // 进度条动画
+                setTimeout(() => {
+                    item.querySelector('.progress-fill').style.width = percent + '%';
+                }, 100);
+            });
+        }
+    </script>
+</body>
+</html>
